@@ -1,6 +1,6 @@
 ---
-title: "PS5 Template"
-author: "Your Name"
+title: "PS5: markdown and basic plots"
+author: "Kyra Diaz"
 date: "2/13/2023"
 output: html_document
 ---
@@ -9,7 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Disclaimer: this serves as a template for you to compose your answer for PS5. It is 100% hardcoded, so error may exists. Please refer to the official spec for a full list of questions and requirements.
 
 # Instructions
 This is a problem set about rmarkdown and plotting (using ggplot). Unlike the previous problem sets, this one does not give you a ready-made GH repo with a code file–it is now your task to create a repo and include your rmarkdown file in there.\
@@ -51,31 +50,71 @@ The variables are: \
 **pm2.5_35** PM2.5 pollution, population exposed to levels exceeding WHO Interim Target-1 value 36ug/m3 \
 **battleDeaths** Battle-related deaths (number of people) \
 
-# 1 Load and check data (5pt)
+# Load and check data (5pt)
 You first task is to do a very simple data check: 
 
-1. (1pt) For solving the problems, and answering the questions, create a new rmarkdown document with an appropriate title. See [**https://faculty.washington.edu/otoomet/info201-book/r-markdown.html#r-markdown-rstudio-creating**](https://faculty.washington.edu/otoomet/info201-book/r-markdown.html#r-markdown-rstudio-creating). \
+**1. (1pt) For solving the problems, and answering the questions, create a new rmarkdown document with an appropriate title. See [**https://faculty.washington.edu/otoomet/info201-book/r-markdown.html#r-markdown-rstudio-creating**](https://faculty.washington.edu/otoomet/info201-book/r-markdown.html#r-markdown-rstudio-creating).** \
 
 
-2. (2pt) Load data. How many rows/columns do we have?  \
+**2. (2pt) Load data. How many rows/columns do we have?**  \
+```{r, message=FALSE}
+library(tidyverse)
+
+gap <- read_delim("gapminder.csv.bz2")
+
+nrow(gap)
+
+ncol(gap)
+```
+The _Gapminder_ dataset has `r nrow(gap)` rows and `r ncol(gap)` columns.
 
 
+**3. (2pt) Print a small sample of data. Does it look OK?**
 
-3. (2pt) Print a small sample of data. Does it look OK? 
-  
-  
+Here's a sample of the data:
+```{r}
+gap %>% 
+  sample_n(5)
+```
+
+It looks good!
+
 ---------------------------------------------------------------------
 
 
-# 2 Descriptive statistics (15pt)
+# Descriptive statistics (15pt)
 
-1. (3pt) How many countries are there in the dataset? Analyze all three: *iso3*, *iso2* and *name*.
+**1. (3pt) How many countries are there in the dataset? Analyze all three: *iso3*, *iso2* and *name*.**
+```{r}
+gap %>% 
+  summarize(countries = n_distinct(name),
+            n_iso2 = n_distinct(iso2),
+            n_iso3 = n_distinct(iso3))
+```
 
-2. If you did this correctly, you saw that there are more iso-2 codes than names, and there are even more *iso3*-codes. What is going on? Can you find it out?
+There seems to be 250 countries, 249 iso-2 codes, and 253 iso-3 country codes.
+
+**2. If you did this correctly, you saw that there are more iso-2 codes than names, and there are even more *iso3*-codes. What is going on? Can you find it out?**
 
     (a) (5pt) Find how many names are there for each iso-2 code. Are there any iso-2 codes that correspond to more than one name? What are these countries?
+```{r}
+gap %>% 
+  group_by(name) %>% 
+  filter(!is.na(name)) %>% 
+  summarize(iso2_countries = n_distinct(iso2)) %>% 
+  filter(iso2_countries > 1)
+```
+There are no iso-2 codes that correspond to more than one country.
+    
     
     (b) (5pt) Now repeat the same for name and iso3-code. Are there country names that have more than one iso3-code? What are these countries? Hint: two of these entitites are *CHANISL* and *NLD CURACAO*.
+```{r}
+gap %>% 
+  group_by(name) %>% 
+  filter(!is.na(name)) %>% 
+  summarize(iso3_countries = n_distinct(iso3)) %>% 
+  filter(iso3_countries > 1)
+```
     
 3. (2pt) What is the minimum and maximum year in these data?
 
