@@ -466,11 +466,11 @@ OK?</strong></p>
 <pre><code>## # A tibble: 5 × 25
 ##   iso3  name  iso2  region sub-r…¹ inter…²  time total…³ ferti…⁴ lifeE…⁵ child…⁶
 ##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-## 1 NZL   New … NZ    Ocean… Austra… &lt;NA&gt;     1976 3110500    2.27    72.4    17.7
-## 2 NRU   Nauru NR    Ocean… Micron… &lt;NA&gt;     2000   10337   NA       NA      41.5
-## 3 BDI   Buru… BI    Africa Sub-Sa… Easter…  1963 2964427    7.07    42.2    NA  
-## 4 CMR   Came… CM    Africa Sub-Sa… Middle…  1967 6052420    6.06    45.0   236. 
-## 5 GMB   Gamb… GM    Africa Sub-Sa… Wester…  2009 1740279    5.61    59.3    76  
+## 1 ISL   Icel… IS    Europe Northe… &lt;NA&gt;     1969  2.03e5    2.99    73.8    16.6
+## 2 UGA   Ugan… UG    Africa Sub-Sa… Easter…  1982  1.32e7    7.10    49.8   212. 
+## 3 KAZ   Kaza… KZ    Asia   Centra… &lt;NA&gt;     2019  1.85e7    2.9     73.2    10.5
+## 4 KOS   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;   &lt;NA&gt;    &lt;NA&gt;     2002  1.70e6    2.67    67.9    NA  
+## 5 GBR   Unit… GB    Europe Northe… &lt;NA&gt;     1996  5.82e7    1.73    77.1     7  
 ## # … with 14 more variables: youthFemaleLiteracy &lt;dbl&gt;, youthMaleLiteracy &lt;dbl&gt;,
 ## #   adultLiteracy &lt;dbl&gt;, GDP_PC &lt;dbl&gt;, accessElectricity &lt;dbl&gt;,
 ## #   agriculturalLand &lt;dbl&gt;, agricultureTractors &lt;dbl&gt;, cerealProduction &lt;dbl&gt;,
@@ -498,32 +498,85 @@ country codes.</p>
 <p><strong>2. If you did this correctly, you saw that there are more
 iso-2 codes than names, and there are even more <em>iso3</em>-codes.
 What is going on? Can you find it out?</strong></p>
-<pre><code>(a) (5pt) Find how many names are there for each iso-2 code. Are there any iso-2 codes that correspond to more than one name? What are these countries?</code></pre>
+<p><strong>(a) (5pt) Find how many names are there for each iso-2 code.
+Are there any iso-2 codes that correspond to more than one name? What
+are these countries?</strong></p>
 <pre class="r"><code>gap %&gt;% 
   group_by(name) %&gt;% 
-  filter(!is.na(name)) %&gt;% 
   summarize(iso2_countries = n_distinct(iso2)) %&gt;% 
-  filter(iso2_countries &gt; 1)</code></pre>
-<pre><code>## # A tibble: 0 × 2
-## # … with 2 variables: name &lt;chr&gt;, iso2_countries &lt;int&gt;</code></pre>
+  arrange(desc(iso2_countries))</code></pre>
+<pre><code>## # A tibble: 250 × 2
+##    name                iso2_countries
+##    &lt;chr&gt;                        &lt;int&gt;
+##  1 Afghanistan                      1
+##  2 Albania                          1
+##  3 Algeria                          1
+##  4 American Samoa                   1
+##  5 Andorra                          1
+##  6 Angola                           1
+##  7 Anguilla                         1
+##  8 Antarctica                       1
+##  9 Antigua and Barbuda              1
+## 10 Argentina                        1
+## # … with 240 more rows</code></pre>
 <p>There are no iso-2 codes that correspond to more than one
 country.</p>
-<pre><code>(b) (5pt) Now repeat the same for name and iso3-code. Are there country names that have more than one iso3-code? What are these countries? Hint: two of these entitites are *CHANISL* and *NLD CURACAO*.</code></pre>
+<p><strong>(b) (5pt) Now repeat the same for name and iso3-code. Are
+there country names that have more than one iso3-code? What are these
+countries? Hint: two of these entitites are <em>CHANISL</em> and <em>NLD
+CURACAO</em>.</strong></p>
 <pre class="r"><code>gap %&gt;% 
   group_by(name) %&gt;% 
-  filter(!is.na(name)) %&gt;% 
   summarize(iso3_countries = n_distinct(iso3)) %&gt;% 
-  filter(iso3_countries &gt; 1)</code></pre>
-<pre><code>## # A tibble: 0 × 2
-## # … with 2 variables: name &lt;chr&gt;, iso3_countries &lt;int&gt;</code></pre>
-<ol start="3" style="list-style-type: decimal">
-<li>(2pt) What is the minimum and maximum year in these data?</li>
-</ol>
-<pre class="r"><code>x &lt;- c(1, 2, 3)
-min(x)</code></pre>
-<pre><code>## [1] 1</code></pre>
-<pre class="r"><code>max(x)</code></pre>
-<pre><code>## [1] 3</code></pre>
+  arrange(desc(iso3_countries))</code></pre>
+<pre><code>## # A tibble: 250 × 2
+##    name                iso3_countries
+##    &lt;chr&gt;                        &lt;int&gt;
+##  1 &lt;NA&gt;                             4
+##  2 Afghanistan                      1
+##  3 Albania                          1
+##  4 Algeria                          1
+##  5 American Samoa                   1
+##  6 Andorra                          1
+##  7 Angola                           1
+##  8 Anguilla                         1
+##  9 Antarctica                       1
+## 10 Antigua and Barbuda              1
+## # … with 240 more rows</code></pre>
+<p>It seems that there are four iso3 codes that do not have a country
+assigned to them (instead, they’re labeled “NA”). We can check which
+iso3 codes these are by doing the following:</p>
+<pre class="r"><code>gap %&gt;% 
+  filter(is.na(name)) %&gt;% 
+  group_by(name) %&gt;% 
+  distinct(iso3)</code></pre>
+<pre><code>## # A tibble: 4 × 2
+## # Groups:   name [1]
+##   name  iso3       
+##   &lt;chr&gt; &lt;chr&gt;      
+## 1 &lt;NA&gt;  CHANISL    
+## 2 &lt;NA&gt;  GBM        
+## 3 &lt;NA&gt;  KOS        
+## 4 &lt;NA&gt;  NLD_CURACAO</code></pre>
+<p>According to the code, the iso3 codes with no country include
+CHANISL, GBM, KOS, and NLD_CURACAO.</p>
+<p><strong>3. (2pt) What is the minimum and maximum year in these
+data?</strong></p>
+<pre class="r"><code>min_yr &lt;- gap %&gt;% 
+  select(time) %&gt;% 
+  filter(!is.na(time)) %&gt;% 
+  min()
+
+min_yr</code></pre>
+<pre><code>## [1] 1960</code></pre>
+<pre class="r"><code>max_yr &lt;- gap %&gt;% 
+  select(time) %&gt;% 
+  filter(!is.na(time)) %&gt;% 
+  max()
+
+max_yr</code></pre>
+<pre><code>## [1] 2019</code></pre>
+<p>The minimum year is 1960 and the maximum year is 2019.</p>
 <hr />
 </div>
 <div id="co2-emissions-30pt" class="section level1">

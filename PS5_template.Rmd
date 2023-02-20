@@ -96,34 +96,53 @@ There seems to be 250 countries, 249 iso-2 codes, and 253 iso-3 country codes.
 
 **2. If you did this correctly, you saw that there are more iso-2 codes than names, and there are even more *iso3*-codes. What is going on? Can you find it out?**
 
-    (a) (5pt) Find how many names are there for each iso-2 code. Are there any iso-2 codes that correspond to more than one name? What are these countries?
+  **(a) (5pt) Find how many names are there for each iso-2 code. Are there any iso-2 codes that correspond to more than one name? What are these countries?**
 ```{r}
 gap %>% 
   group_by(name) %>% 
-  filter(!is.na(name)) %>% 
   summarize(iso2_countries = n_distinct(iso2)) %>% 
-  filter(iso2_countries > 1)
+  arrange(desc(iso2_countries))
 ```
 There are no iso-2 codes that correspond to more than one country.
     
     
-    (b) (5pt) Now repeat the same for name and iso3-code. Are there country names that have more than one iso3-code? What are these countries? Hint: two of these entitites are *CHANISL* and *NLD CURACAO*.
+  **(b) (5pt) Now repeat the same for name and iso3-code. Are there country names that have more than one iso3-code? What are these countries? Hint: two of these entitites are *CHANISL* and *NLD CURACAO*.**
 ```{r}
 gap %>% 
   group_by(name) %>% 
-  filter(!is.na(name)) %>% 
   summarize(iso3_countries = n_distinct(iso3)) %>% 
-  filter(iso3_countries > 1)
+  arrange(desc(iso3_countries))
 ```
-    
-3. (2pt) What is the minimum and maximum year in these data?
+
+It seems that there are four iso3 codes that do not have a country assigned to them (instead, they're labeled "NA"). We can check which iso3 codes these are by doing the following:
 
 ```{r}
-x <- c(1, 2, 3)
-min(x)
-max(x)
+gap %>% 
+  filter(is.na(name)) %>% 
+  group_by(name) %>% 
+  distinct(iso3)
 ```
+According to the code, the iso3 codes with no country include CHANISL, GBM, KOS, and NLD_CURACAO.
+    
+**3. (2pt) What is the minimum and maximum year in these data?**
 
+```{r}
+min_yr <- gap %>% 
+  select(time) %>% 
+  filter(!is.na(time)) %>% 
+  min()
+
+min_yr
+
+max_yr <- gap %>% 
+  select(time) %>% 
+  filter(!is.na(time)) %>% 
+  max()
+
+max_yr
+
+```
+The minimum year is `r min_yr` and the maximum year is `r max_yr`.
 
 ---------------------------------------------------------------------
 
