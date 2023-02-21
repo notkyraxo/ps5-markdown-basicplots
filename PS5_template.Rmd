@@ -146,28 +146,85 @@ The minimum year is `r min_yr` and the maximum year is `r max_yr`.
 
 ---------------------------------------------------------------------
 
-# 3 CO2 emissions (30pt)
+# CO2 emissions (30pt)
 Next, let’s analyze CO2 emissions.
 
-1. (2pt) How many missing co2 emissions are there for each year? Analyze both missing *CO2* and *co2_PC*. Which years have most missing data? \
+**1. (2pt) How many missing co2 emissions are there for each year? Analyze both missing *CO2* and *co2_PC*. Which years have most missing data?** \
+```{r}
+ gap %>% 
+  select(time, co2, co2_PC) %>% 
+  group_by(time) %>% 
+  filter(is.na(co2_PC), is.na(co2)) %>% 
+  count() %>% 
+  arrange(desc(n))
+```
+2017, 2018, and 2019 have the most missing co2 emissions with a frequency of 217.
 
-2. (5pt) Make a plot of total CO2 emissions over time for the U.S, China, and India. Add a few more countries of your choice. Explain what do you see. \
 
-3. (5pt) Now let’s analyze the CO2 emissions per capita (*co2_PC*). Make a similar plot of thesame countries. What does this figure suggest? \
+**2. (5pt) Make a plot of total CO2 emissions over time for the U.S, China, and India. Add a few more countries of your choice. Explain what do you see.** \
 
-4. (6pt) Compute average CO2 emissions per capita across the continents (assume *region* is the same as continent). Comment what do you see. \
-Note: just compute averages over countries and ignore the fact that countries are of different size. \
-Hint: Americas 2016 should be 4.80. \
+First, I made a subset with the countries I wanted to plot:
+```{r}
+co2_countries <- c("China", "United States of America", "India", "Philippines", "Mexico", "France")
 
-5. (7pt) Make a barplot where you show the previous results–average CO2 emissions per capita across continents in 1960 and 2016. \
-Hint: it should look something along these lines(**Please refer to the spec for the graph**) \
+co2_gap <- gap %>% 
+  filter(name == co2_countries) %>% #error with this line
+  filter(!is.na(co2))
+```
+
+Then, I plotted these points:
+```{r}
+ggplot(co2_gap) +
+  geom_line(aes(x = time, y = co2,
+                group = name,
+                color = name))
+```
+
+Looking at the data, we can see clearly that China's CO2 emissions have increased a lot more than other countries over time. In addition, the U.S. seems to have higher levels of CO2 emissions overall, though hasn't increased as much as China. India also has upward trends of CO2 emissions, but Mexico, Philippines, and France have remained pretty constant.
+
+**3. (5pt) Now let’s analyze the CO2 emissions per capita (*co2_PC*). Make a similar plot of the same countries. What does this figure suggest?** \
+```{r}
+ggplot(co2_gap) +
+  geom_line(aes(x = time, y = co2_PC,
+                group = name,
+                color = name))
+```
+\
+Overall,the U.S. has a higher rate of CO2 emissions per capita France, Mexico, China, Philippines, and India. 
+
+**4. (6pt) Compute average CO2 emissions per capita across the continents (assume *region* is the same as continent). Comment what do you see.** \
+**Note: just compute averages over countries and ignore the fact that countries are of different size.** \
+**Hint: Americas 2016 should be 4.80.** \
+```{r}
+co2_regions <- gap %>% 
+  group_by(time, region) %>% 
+  filter(!is.na(co2_PC), !is.na(region)) %>% 
+  mutate(avg_co2PC = mean(co2_PC)) %>% 
+  select(region, time, avg_co2PC) %>% 
+  arrange(desc(time))
+
+head(co2_regions, 8)
+
+ggplot(co2_regions) +
+  geom_line(aes(x = time, y = avg_co2PC,
+                group = region,
+                color = region))
+```
+\
+Overall, the Americas seem to have the highest average CO2 emissions per capita than any other region.
+It also seems that CO2 emissions per capita are slowly increasing over time.
+
+**5. (7pt) Make a barplot where you show the previous results–average CO2 emissions per capita across continents in 1960 and 2016.** \
+**Hint: it should look something along these lines(Please refer to the spec for the graph)** \
+
 
 6. Which countries are the three largest, and three smallest CO2 emitters (in terms of CO2 per capita) in 2019 for each continent? (Assume *region* is continent). \
 
 
+
 ---------------------------------------------------------------------
 
-# 4 GDP per capita (50pt)
+# GDP per capita (50pt)
 Let’s look at GDP per capita (*GDP_PC*)
 
 1. (8pt) Make a scatterplot of GDP per capita versus life expectancy by country, using data for 1960. Make the point size dependent on the country size, and color those according to the continent. Feel free to adjust the plot in other ways to make it better. \
